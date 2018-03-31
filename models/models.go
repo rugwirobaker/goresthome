@@ -18,14 +18,21 @@ type Article struct {
 //Articles is represents an in memory database
 var Articles = make(map[string]Article)
 
-func retrieveArticle() error {
+//RetrieveArticle ...
+func (t *Article) RetrieveArticle() error {
 	return errors.New("Not implemented")
 }
 
-func createArticle(title, body, author string) error {
+//CreateArticle ...
+func (t *Article) CreateArticle(title, body, author string) error {
 	return errors.New("Not implemented")
 }
 
-func listArticles() ([]Article, error) {
-	return nil, errors.New("Not implemented")
+//ListArticles ...
+func ListArticles() []Article {
+	var articles []Article
+	for _, v := range Articles {
+		articles = append(articles, v)
+	}
+	return articles
 }

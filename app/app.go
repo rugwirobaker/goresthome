@@ -53,10 +53,12 @@ func getArticle(w http.ResponseWriter, r *http.Request) {
 }
 
 func listArticles(w http.ResponseWriter, r *http.Request) {
-	var articles []models.Article
-	for _, v := range models.Articles {
-		articles = append(articles, v)
-	}
+
+	articles := models.ListArticles()
+	//if err != nil {
+	//panic(err)
+	//}
+
 	w.Header().Set("Content-Type", "application/json")
 	js, err := json.Marshal(articles)
 	if err != nil {
@@ -69,16 +71,19 @@ func listArticles(w http.ResponseWriter, r *http.Request) {
 var id int
 
 func createArticle(w http.ResponseWriter, r *http.Request) {
+
 	var article models.Article
 	err := json.NewDecoder(r.Body).Decode(&article)
 	if err != nil {
 		panic(err)
 	}
+	//Move to models
 	article.CreatedOn = time.Now()
 
 	id++
 	k := strconv.Itoa(id)
 	models.Articles[k] = article
+	// return article
 
 	js, err := json.Marshal(article)
 	if err != nil {
