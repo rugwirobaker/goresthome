@@ -6,8 +6,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/rugwirobaker/structure/models"
 )
 
 //App the core struct of the aoo
@@ -31,7 +34,7 @@ func (a *App) Run(addr string) {
 func (a *App) initRoutes() {
 	a.Router.HandleFunc("/articles", listArticles).Methods("GET")
 	a.Router.HandleFunc("/articles/{id}", getArticle).Methods("GET")
-	a.Router.HandleFunc("/articles/", createArticle).Methods("POST")
+	a.Router.HandleFunc("/articles", createArticle).Methods("POST")
 }
 
 //API represents dummy data
@@ -50,19 +53,39 @@ func getArticle(w http.ResponseWriter, r *http.Request) {
 }
 
 func listArticles(w http.ResponseWriter, r *http.Request) {
-	message := API{"Hello,	world! This is a list"}
-	output, err := json.Marshal(message)
-	if err != nil {
-		fmt.Println("Something went wrong!")
+	var articles []models.Article
+	for _, v := range models.Articles {
+		articles = append(articles, v)
 	}
-	fmt.Fprintf(w, string(output))
+	w.Header().Set("Content-Type", "application/json")
+	js, err := json.Marshal(articles)
+	if err != nil {
+		panic(err)
+	}
+	w.WriteHeader(http.StatusOK)
+	w.Write(js)
 }
 
+var id int
+
 func createArticle(w http.ResponseWriter, r *http.Request) {
-	message := API{"Hello,	world! I create articles"}
-	output, err := json.Marshal(message)
+	var article models.Article
+	err := json.NewDecoder(r.Body).Decode(&article)
 	if err != nil {
-		fmt.Println("Something went wrong!")
+		panic(err)
 	}
-	fmt.Fprintf(w, string(output))
+	article.CreatedOn = time.Now()
+
+	id++
+	k := strconv.Itoa(id)
+	models.Articles[k] = article
+
+	js, err := json.Marshal(article)
+	if err != nil {
+		panic(err)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	w.Write(js)
 }
