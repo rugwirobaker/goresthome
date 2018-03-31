@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strconv"
-	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/rugwirobaker/structure/models"
@@ -43,6 +41,7 @@ type API struct {
 	Message string `json:"message"`
 }
 
+//Last to be implemented
 func getArticle(w http.ResponseWriter, r *http.Request) {
 	message := API{"Hello,	world! I am an article"}
 	output, err := json.Marshal(message)
@@ -77,13 +76,8 @@ func createArticle(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-	//Move to models
-	article.CreatedOn = time.Now()
 
-	id++
-	k := strconv.Itoa(id)
-	models.Articles[k] = article
-	// return article
+	models.CreateArticle(article)
 
 	js, err := json.Marshal(article)
 	if err != nil {

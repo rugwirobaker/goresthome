@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"strconv"
 	"time"
 )
 
@@ -23,9 +24,16 @@ func (t *Article) RetrieveArticle() error {
 	return errors.New("Not implemented")
 }
 
+var id int
+
 //CreateArticle ...
-func (t *Article) CreateArticle(title, body, author string) error {
-	return errors.New("Not implemented")
+func CreateArticle(article Article) Article {
+	article.CreatedOn = time.Now()
+
+	id++
+	k := strconv.Itoa(id)
+	Articles[k] = article
+	return article
 }
 
 //ListArticles ...
