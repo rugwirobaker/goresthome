@@ -1,7 +1,6 @@
 package models
 
 import (
-	"errors"
 	"strconv"
 	"time"
 )
@@ -20,8 +19,14 @@ type Article struct {
 var Articles = make(map[string]Article)
 
 //RetrieveArticle ...
-func (t *Article) RetrieveArticle() error {
-	return errors.New("Not implemented")
+func RetrieveArticle(title string) Article {
+	article := Article{}
+	for _, a := range Articles {
+		if a.Title == title {
+			return a
+		}
+	}
+	return article
 }
 
 var id int

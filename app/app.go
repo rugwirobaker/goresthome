@@ -31,7 +31,7 @@ func (a *App) Run(addr string) {
 
 func (a *App) initRoutes() {
 	a.Router.HandleFunc("/articles", listArticles).Methods("GET")
-	a.Router.HandleFunc("/articles/{id}", getArticle).Methods("GET")
+	a.Router.HandleFunc("/articles/{title}", getArticle).Methods("GET")
 	a.Router.HandleFunc("/articles", createArticle).Methods("POST")
 }
 
@@ -43,12 +43,19 @@ type API struct {
 
 //Last to be implemented
 func getArticle(w http.ResponseWriter, r *http.Request) {
-	message := API{"Hello,	world! I am an article"}
-	output, err := json.Marshal(message)
+	urlParams := mux.Vars(r)
+	title := urlParams["title"]
+	fmt.Println(title)
+	article := models.RetrieveArticle(title)
+
+	js, err := json.Marshal(article)
 	if err != nil {
-		fmt.Println("Something went wrong!")
+		panic(err)
 	}
-	fmt.Fprintf(w, string(output))
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(js)
 }
 
 func listArticles(w http.ResponseWriter, r *http.Request) {
@@ -58,11 +65,11 @@ func listArticles(w http.ResponseWriter, r *http.Request) {
 	//panic(err)
 	//}
 
-	w.Header().Set("Content-Type", "application/json")
 	js, err := json.Marshal(articles)
 	if err != nil {
 		panic(err)
 	}
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(js)
 }
