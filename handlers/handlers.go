@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -13,7 +12,7 @@ import (
 func RetrieveArticle(w http.ResponseWriter, r *http.Request) {
 	urlParams := mux.Vars(r)
 	title := urlParams["title"]
-	fmt.Println(title)
+	//fmt.Println(title)
 	article := models.RetrieveArticle(title)
 
 	js, err := json.Marshal(article)
