@@ -1,0 +1,3 @@
+development:
+  driver: postgres
+  open: user=structapp password=12345 dbname=postgres sslmode=disable
