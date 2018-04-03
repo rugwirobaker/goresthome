@@ -1,12 +1,14 @@
 package models
 
 import (
-	"strconv"
+	"database/sql"
+	"log"
 	"time"
 )
 
 //Article ...
 type Article struct {
+	ID        int       `json:"id"`
 	Title     string    `json:"title"`
 	Body      string    `json:"body"`
 	Author    string    `json:"author"`
@@ -26,19 +28,23 @@ func RetrieveArticle(title string) Article {
 			return a
 		}
 	}
+	//fmt.Println("Could not retrieve Article")
+	//TODO: Error logging
 	return article
 }
 
-var id int
-
 //CreateArticle ...
-func CreateArticle(article Article) Article {
-	article.CreatedOn = time.Now()
+func (c *Article) CreateArticle(db *sql.DB) {
+	//var article = Article{}
+	c.CreatedOn = time.Now()
+	err := db.QueryRow("INSERT INTO articles(title, body, author,createdon)"+
+		"VALUES($1, $2, $3, $4)"+
+		"RETURNING id", c.Title, c.Body, c.Author, c.CreatedOn).Scan(&c.ID)
 
-	id++
-	k := strconv.Itoa(id)
-	Articles[k] = article
-	return article
+	if err != nil {
+		log.Fatal(err)
+	}
+
 }
 
 //ListArticles ...
