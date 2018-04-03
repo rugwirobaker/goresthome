@@ -5,7 +5,7 @@ CREATE TABLE Articles(
     id        serial,
     title     VARCHAR(250),
     body      TEXT,
-    createdOn DATETIME
+    createdOn DATE,
     PRIMARY KEY(id)
 );
 
