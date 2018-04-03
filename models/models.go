@@ -18,7 +18,7 @@ type Article struct {
 //var id int
 
 //Articles is represents an in memory database
-var Articles = make(map[string]Article)
+//var Articles = make(map[string]Article)
 
 //RetrieveArticle ...
 func (c *Article) RetrieveArticle(db *sql.DB) {
@@ -45,10 +45,21 @@ func (c *Article) CreateArticle(db *sql.DB) {
 }
 
 //ListArticles ...
-func ListArticles() []Article {
+func ListArticles(db *sql.DB) []Article {
 	var articles []Article
-	for _, v := range Articles {
-		articles = append(articles, v)
+	rows, err := db.Query("SELECT id, title, author FROM articles")
+
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var c Article
+		if err := rows.Scan(&c.ID, &c.Title, &c.Author); err != nil {
+			log.Fatal(err)
+		}
+		articles = append(articles, c)
 	}
 	return articles
 }
