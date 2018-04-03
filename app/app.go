@@ -2,6 +2,7 @@ package app
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -9,7 +10,7 @@ import (
 	_ "github.com/lib/pq"
 
 	"github.com/gorilla/mux"
-	"github.com/rugwirobaker/structure/handlers"
+	"github.com/rugwirobaker/structure/models"
 )
 
 //App the core struct of the aoo
@@ -32,14 +33,14 @@ func (a *App) Run(addr string) {
 //Routes definition
 
 func (a *App) initRoutes() {
-	a.Router.HandleFunc("/articles", handlers.ListArticles).Methods("GET")
-	a.Router.HandleFunc("/articles/{title}", handlers.RetrieveArticle).Methods("GET")
-	a.Router.HandleFunc("/articles", handlers.CreateArticle).Methods("POST")
+	//a.Router.HandleFunc("/articles", handlers.ListArticles).Methods("GET")
+	//a.Router.HandleFunc("/articles/{title}", handlers.RetrieveArticle).Methods("GET")
+	a.Router.HandleFunc("/articles", a.CreateArticle).Methods("POST")
 }
 
 //Initialize database connection
 func (a *App) initDb(host, username, password, dbname string, port int) {
-	//TODO: fix connection string
+	//TODO: fix connection string --> DONE
 	connString := fmt.Sprintf("host=%s port=%d user=%s password=%s "+
 		"dbname=%s sslmode=disable", host, port, username, password, dbname)
 
@@ -55,6 +56,29 @@ func (a *App) initDb(host, username, password, dbname string, port int) {
 	if err != nil {
 		log.Fatal(err)
 	} else {
-		fmt.Println("Connection Established")
+		fmt.Println("*** Database Connection Established ...")
 	}
+}
+
+//handlers
+
+//CreateArticle ...
+func (a *App) CreateArticle(w http.ResponseWriter, r *http.Request) {
+
+	var article models.Article
+	err := json.NewDecoder(r.Body).Decode(&article)
+	if err != nil {
+		panic(err)
+	}
+
+	article.CreateArticle(a.DB)
+
+	js, err := json.Marshal(article)
+	if err != nil {
+		panic(err)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	w.Write(js)
 }
