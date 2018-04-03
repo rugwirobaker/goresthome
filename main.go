@@ -7,3 +7,8 @@ func main() {
 	a.Initialize()
 	a.Run(":8080")
 }
+
+//TODO: move handlers to own package
+//TODO: improve error reporting
+//TODO: add caching middleware
+//TODO: add users and authentication
