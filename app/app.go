@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	// Database driver
 	_ "github.com/lib/pq"
 
@@ -33,8 +34,9 @@ func (a *App) Run(addr string) {
 //Routes definition
 
 func (a *App) initRoutes() {
+	a.Router.StrictSlash(false)
 	//a.Router.HandleFunc("/articles", handlers.ListArticles).Methods("GET")
-	//a.Router.HandleFunc("/articles/{title}", handlers.RetrieveArticle).Methods("GET")
+	a.Router.HandleFunc("/articles/{id:[0-9]+}", a.RetrieveArticle).Methods("GET")
 	a.Router.HandleFunc("/articles", a.CreateArticle).Methods("POST")
 }
 
@@ -81,4 +83,27 @@ func (a *App) CreateArticle(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	w.Write(js)
+}
+
+//RetrieveArticle ...
+func (a *App) RetrieveArticle(w http.ResponseWriter, r *http.Request) {
+	urlParams := mux.Vars(r)
+	id, err := strconv.Atoi(urlParams["id"])
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	article := models.Article{ID: id}
+
+	article.RetrieveArticle(a.DB)
+	js, err := json.Marshal(article)
+	if err != nil {
+		panic(err)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(js)
+
 }

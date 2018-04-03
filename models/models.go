@@ -21,16 +21,13 @@ type Article struct {
 var Articles = make(map[string]Article)
 
 //RetrieveArticle ...
-func RetrieveArticle(title string) Article {
-	article := Article{}
-	for _, a := range Articles {
-		if a.Title == title {
-			return a
-		}
+func (c *Article) RetrieveArticle(db *sql.DB) {
+	err := db.QueryRow("SELECT id, title, author FROM articles WHERE id=$1",
+		c.ID).Scan(&c.ID, &c.Title, &c.Author)
+
+	if err != nil {
+		log.Fatal(err)
 	}
-	//fmt.Println("Could not retrieve Article")
-	//TODO: Error logging
-	return article
 }
 
 //CreateArticle ...
