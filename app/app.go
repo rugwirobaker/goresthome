@@ -37,7 +37,7 @@ func (a *App) initRoutes() {
 	a.Router.StrictSlash(false)
 	a.Router.HandleFunc("/articles", a.RetrieveArticles).Methods("GET")
 	a.Router.HandleFunc("/articles/{id:[0-9]+}", a.RetrieveArticle).Methods("GET")
-	//a.Router.HandleFunc("/articles", a.CreateArticle).Methods("POST")
+	a.Router.HandleFunc("/articles", a.CreateArticle).Methods("POST")
 }
 
 //Initialize database connection
