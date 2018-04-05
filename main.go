@@ -12,3 +12,5 @@ func main() {
 //TODO: improve error reporting
 //TODO: add caching middleware
 //TODO: add users and authentication
+
+//LEARNED: function wrapping
