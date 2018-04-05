@@ -13,3 +13,7 @@ I will base all my future projects in go web development. Enjoy your cake.
 * gorilla/mux: Install --> `go get -u github.com/gorilla/mux`
 * lib/pq: Install --> `go get github.com/lib/pq`
 * liamstask/goose: Install --> `go get bitbucket.org/liamstask/goose/cmd/goose`
+
+## NOTE: 
+This repository is a work in progress. I am not a great programmer but I am a great learner.
+I will try my best to make this repo a fair reflection of my current knowledge and hopefully become a Gopher worthy of the name.
