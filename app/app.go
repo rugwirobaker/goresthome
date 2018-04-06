@@ -12,7 +12,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-//App the core struct of the aoo
+//App defines application wide configutration.s
 type App struct {
 	Router mux.Router
 	DB     *sql.DB
