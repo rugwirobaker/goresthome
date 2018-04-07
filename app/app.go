@@ -26,6 +26,7 @@ func (a *App) Initialize() {
 
 //Run method starts the server
 func (a *App) Run(addr string) {
+	fmt.Println("*** Starting the web server ...")
 	log.Fatal(http.ListenAndServe(addr, &a.Router))
 }
 
