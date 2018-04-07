@@ -19,3 +19,4 @@ func main() {
 //TODO: add users and authentication
 
 //LEARNED: function wrapping
+//CREATE: a basic logging package

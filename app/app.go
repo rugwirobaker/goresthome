@@ -38,16 +38,28 @@ func (a *App) initRoutes() {
 
 	a.Router.HandleFunc("/articles", func(w http.ResponseWriter,
 		r *http.Request) {
+
+		logger := fmt.Sprintf("*** request: %s | %s%s", r.Method, r.Host, r.URL)
+		fmt.Println(logger)
+
 		handlers.RetrieveArticles(w, r, a.DB)
 	}).Methods("GET")
 
 	a.Router.HandleFunc("/articles/{id:[0-9]+}", func(w http.ResponseWriter,
 		r *http.Request) {
+
+		logger := fmt.Sprintf("*** request: %s | %s%s", r.Method, r.Host, r.URL)
+		fmt.Println(logger)
+
 		handlers.RetrieveArticle(w, r, a.DB)
 	}).Methods("GET")
 
 	a.Router.HandleFunc("/articles", func(w http.ResponseWriter,
 		r *http.Request) {
+
+		logger := fmt.Sprintf("*** request: %s | %s%s", r.Method, r.Host, r.URL)
+		fmt.Println(logger)
+
 		handlers.CreateArticle(w, r, a.DB)
 	}).Methods("POST")
 }
