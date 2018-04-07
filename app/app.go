@@ -20,13 +20,14 @@ type App struct {
 
 //Initialize ...
 func (a *App) Initialize() {
+	fmt.Println("*** Initializing application...")
 	a.initDb(Host, User, Password, Dbname, Port)
 	a.initRoutes()
 }
 
 //Run method starts the server
 func (a *App) Run(addr string) {
-	fmt.Println("*** Starting the web server ...")
+	fmt.Println("*** Starting the web server...")
 	log.Fatal(http.ListenAndServe(addr, &a.Router))
 }
 
