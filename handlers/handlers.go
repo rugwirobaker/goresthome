@@ -11,6 +11,18 @@ import (
 	"github.com/rugwirobaker/structure/models"
 )
 
+//ArticleResponse ...
+type ArticleResponse struct {
+	Status string         `json:"status,omitempty"`
+	Data   models.Article `json:"article,omitempty"`
+}
+
+//ArticlesResponse ...
+type ArticlesResponse struct {
+	Status string                `json:"status,omitempty"`
+	Data   models.ArticleResults `json:"articles,omitempty"`
+}
+
 //CreateArticle ...
 func CreateArticle(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 
@@ -22,7 +34,8 @@ func CreateArticle(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 
 	article.CreateArticle(db)
 
-	js, err := json.Marshal(article)
+	response := ArticleResponse{Status: "success", Data: article}
+	js, err := json.Marshal(response)
 	if err != nil {
 		panic(err)
 	}
@@ -43,9 +56,10 @@ func RetrieveArticle(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	}
 
 	article := models.Article{ID: id}
-
 	article.RetrieveArticle(db)
-	js, err := json.Marshal(article)
+
+	response := ArticleResponse{Status: "success", Data: article}
+	js, err := json.Marshal(response)
 	if err != nil {
 		panic(err)
 	}
@@ -70,7 +84,8 @@ func RetrieveArticles(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	var articles models.ArticleResults
 	articles.ListArticles(db)
 
-	js, err := json.Marshal(articles)
+	response := ArticlesResponse{Status: "success", Data: articles}
+	js, err := json.Marshal(response)
 	if err != nil {
 		panic(err)
 	}
