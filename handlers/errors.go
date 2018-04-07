@@ -1,5 +1,7 @@
 package handlers
 
+//NOTE yet implemented
+
 //Error represents a handler error. It embends the builtin error and
 // provides a method to return an HTTP error response code
 type Error interface {
