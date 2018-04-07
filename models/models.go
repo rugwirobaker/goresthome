@@ -45,8 +45,7 @@ func (c *Article) CreateArticle(db *sql.DB) {
 }
 
 //ListArticles ...
-func ListArticles(db *sql.DB) []Article {
-	var articles []Article
+func (s *ArticleResults) ListArticles(db *sql.DB) *ArticleResults {
 	rows, err := db.Query("SELECT id, title, author FROM articles")
 
 	if err != nil {
@@ -59,7 +58,18 @@ func ListArticles(db *sql.DB) []Article {
 		if err := rows.Scan(&c.ID, &c.Title, &c.Author); err != nil {
 			log.Fatal(err)
 		}
-		articles = append(articles, c)
+		s.Articles = append(s.Articles, c)
+		s.getNumber()
 	}
-	return articles
+	return s
+}
+
+// ArticleResults models a list of retrieved articles
+type ArticleResults struct {
+	Number   int       `json:"article_number"`
+	Articles []Article `json:"articles"`
+}
+
+func (s *ArticleResults) getNumber() {
+	s.Number = len(s.Articles)
 }

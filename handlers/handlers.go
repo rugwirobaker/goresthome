@@ -67,8 +67,9 @@ func RetrieveArticles(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	//if start < 0 {
 	//start = 0
 	//}
+	var articles models.ArticleResults
+	articles.ListArticles(db)
 
-	articles := models.ListArticles(db)
 	js, err := json.Marshal(articles)
 	if err != nil {
 		panic(err)
