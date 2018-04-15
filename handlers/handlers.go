@@ -28,18 +28,25 @@ func CreateArticle(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		panic(err)
 	}
 
-	article.CreateArticle(db)
-
-	response := JSONResp{Status: "success", Payload: &article}
-	js, err := json.Marshal(response)
+	err = article.CreateArticle(db)
 	if err != nil {
-		panic(err)
+		response := JSONResp{Status: "fail", ErrMessage: err.Error()}
+		js, _ := json.Marshal(response)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotFound)
+		w.Write(js)
+	} else {
+		response := JSONResp{Status: "success", Payload: &article}
+		js, err := json.Marshal(response)
+		if err != nil {
+			panic(err)
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusCreated)
+
+		w.Write(js)
 	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-
-	w.Write(js)
 }
 
 //RetrieveArticle ...
@@ -52,17 +59,26 @@ func RetrieveArticle(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	}
 
 	article := models.Article{ID: id}
-	article.RetrieveArticle(db)
+	err = article.RetrieveArticle(db)
 
-	response := JSONResp{Status: "success", Payload: &article}
-	js, err := json.Marshal(response)
 	if err != nil {
-		panic(err)
-	}
+		response := JSONResp{Status: "fail", ErrMessage: err.Error()}
+		js, _ := json.Marshal(response)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotFound)
+		w.Write(js)
+	} else {
+		response := JSONResp{Status: "success", Payload: &article}
+		js, err := json.Marshal(response)
+		if err != nil {
+			panic(err)
+		}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(js)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write(js)
+
+	}
 
 }
 
@@ -78,16 +94,23 @@ func RetrieveArticles(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	//start = 0
 	//}
 	var articles models.ArticleResults
-	articles.ListArticles(db)
-
-	response := JSONResp{Status: "success", Results: &articles}
-	js, err := json.Marshal(response)
+	err := articles.ListArticles(db)
 	if err != nil {
-		panic(err)
+		response := JSONResp{Status: "fail", ErrMessage: err.Error()}
+		js, _ := json.Marshal(response)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotFound)
+		w.Write(js)
+	} else {
+
+		response := JSONResp{Status: "success", Results: &articles}
+		js, err := json.Marshal(response)
+		if err != nil {
+			panic(err)
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write(js)
 	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(js)
-
 }

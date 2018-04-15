@@ -2,7 +2,6 @@ package models
 
 import (
 	"database/sql"
-	"log"
 	"time"
 )
 
@@ -21,17 +20,18 @@ type Article struct {
 //var Articles = make(map[string]Article)
 
 //RetrieveArticle ...
-func (c *Article) RetrieveArticle(db *sql.DB) {
+func (c *Article) RetrieveArticle(db *sql.DB) error {
 	err := db.QueryRow("SELECT id, title, author FROM articles WHERE id=$1",
 		c.ID).Scan(&c.ID, &c.Title, &c.Author)
 
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
+	return nil
 }
 
 //CreateArticle ...
-func (c *Article) CreateArticle(db *sql.DB) {
+func (c *Article) CreateArticle(db *sql.DB) error {
 	//var article = Article{}
 	c.CreatedOn = time.Now()
 	err := db.QueryRow("INSERT INTO articles(title, body, author,createdon)"+
@@ -39,29 +39,10 @@ func (c *Article) CreateArticle(db *sql.DB) {
 		"RETURNING id", c.Title, c.Body, c.Author, c.CreatedOn).Scan(&c.ID)
 
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
+	return nil
 
-}
-
-//ListArticles ...
-func (s *ArticleResults) ListArticles(db *sql.DB) *ArticleResults {
-	rows, err := db.Query("SELECT id, title, author FROM articles")
-
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var c Article
-		if err := rows.Scan(&c.ID, &c.Title, &c.Author); err != nil {
-			log.Fatal(err)
-		}
-		s.Articles = append(s.Articles, c)
-		s.getNumber()
-	}
-	return s
 }
 
 // ArticleResults models a list of retrieved articles
@@ -72,4 +53,24 @@ type ArticleResults struct {
 
 func (s *ArticleResults) getNumber() {
 	s.Number = len(s.Articles)
+}
+
+//ListArticles ...
+func (s *ArticleResults) ListArticles(db *sql.DB) error {
+	rows, err := db.Query("SELECT id, title, author FROM articles")
+
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var c Article
+		if err := rows.Scan(&c.ID, &c.Title, &c.Author); err != nil {
+			return err
+		}
+		s.Articles = append(s.Articles, c)
+		s.getNumber()
+	}
+	return nil
 }
