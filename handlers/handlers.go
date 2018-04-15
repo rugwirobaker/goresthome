@@ -11,16 +11,12 @@ import (
 	"github.com/rugwirobaker/structure/models"
 )
 
-//ArticleResponse ...
-type ArticleResponse struct {
-	Status string         `json:"status,omitempty"`
-	Data   models.Article `json:"article,omitempty"`
-}
-
-//ArticlesResponse ...
-type ArticlesResponse struct {
-	Status string                `json:"status,omitempty"`
-	Data   models.ArticleResults `json:"articles,omitempty"`
+//JSONResp is the response structure
+type JSONResp struct {
+	Status     string                 `json:"status"`
+	Payload    *models.Article        `json:"payload,omitempty"`
+	Results    *models.ArticleResults `json:"results,omitempty"`
+	ErrMessage string                 `json:"error,omitempty"`
 }
 
 //CreateArticle ...
@@ -34,7 +30,7 @@ func CreateArticle(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 
 	article.CreateArticle(db)
 
-	response := ArticleResponse{Status: "success", Data: article}
+	response := JSONResp{Status: "success", Payload: &article}
 	js, err := json.Marshal(response)
 	if err != nil {
 		panic(err)
@@ -58,7 +54,7 @@ func RetrieveArticle(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	article := models.Article{ID: id}
 	article.RetrieveArticle(db)
 
-	response := ArticleResponse{Status: "success", Data: article}
+	response := JSONResp{Status: "success", Payload: &article}
 	js, err := json.Marshal(response)
 	if err != nil {
 		panic(err)
@@ -84,7 +80,7 @@ func RetrieveArticles(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	var articles models.ArticleResults
 	articles.ListArticles(db)
 
-	response := ArticlesResponse{Status: "success", Data: articles}
+	response := JSONResp{Status: "success", Results: &articles}
 	js, err := json.Marshal(response)
 	if err != nil {
 		panic(err)
