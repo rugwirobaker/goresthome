@@ -36,15 +36,7 @@ func (a *App) Run(addr string) {
 func (a *App) initRoutes() {
 	a.Router.StrictSlash(false)
 
-	a.Router.HandleFunc("/articles", func(w http.ResponseWriter,
-		r *http.Request) {
-
-		logger := fmt.Sprintf("*** request: %s | %s%s", r.Method, r.Host, r.URL)
-		fmt.Println(logger)
-
-		handlers.RetrieveArticles(w, r, a.DB)
-	}).Methods("GET")
-
+	// Route: Retrieve an article
 	a.Router.HandleFunc("/articles/{id:[0-9]+}", func(w http.ResponseWriter,
 		r *http.Request) {
 
@@ -54,6 +46,7 @@ func (a *App) initRoutes() {
 		handlers.RetrieveArticle(w, r, a.DB)
 	}).Methods("GET")
 
+	// Route: Creates an article
 	a.Router.HandleFunc("/articles", func(w http.ResponseWriter,
 		r *http.Request) {
 
@@ -62,6 +55,26 @@ func (a *App) initRoutes() {
 
 		handlers.CreateArticle(w, r, a.DB)
 	}).Methods("POST")
+
+	// Route: Deletes an article
+	a.Router.HandleFunc("/articles/{id:[0-9]+}", func(w http.ResponseWriter,
+		r *http.Request) {
+
+		logger := fmt.Sprintf("*** request: %s | %s%s", r.Method, r.Host, r.URL)
+		fmt.Println(logger)
+
+		handlers.DeleteArticle(w, r, a.DB)
+	}).Methods("DELETE")
+
+	// Route: Retrieves a list of articles
+	a.Router.HandleFunc("/articles", func(w http.ResponseWriter,
+		r *http.Request) {
+
+		logger := fmt.Sprintf("*** request: %s | %s%s", r.Method, r.Host, r.URL)
+		fmt.Println(logger)
+
+		handlers.RetrieveArticles(w, r, a.DB)
+	}).Methods("GET")
 }
 
 //Initialize database connection

@@ -114,3 +114,34 @@ func RetrieveArticles(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		w.Write(js)
 	}
 }
+
+//DeleteArticle ...
+func DeleteArticle(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+	urlParams := mux.Vars(r)
+	id, err := strconv.Atoi(urlParams["id"])
+
+	if err != nil {
+		log.Fatal(err)
+	}
+	article := models.Article{ID: id}
+	err = article.DeleteArticle(db)
+
+	if err != nil {
+		response := JSONResp{Status: "fail", ErrMessage: err.Error()}
+		js, _ := json.Marshal(response)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotFound)
+		w.Write(js)
+	} else {
+		response := JSONResp{Status: "success"}
+		js, err := json.Marshal(response)
+		if err != nil {
+			panic(err)
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusAccepted)
+		w.Write(js)
+
+	}
+}
