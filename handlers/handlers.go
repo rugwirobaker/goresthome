@@ -30,10 +30,16 @@ func CreateArticle(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 
 	err = article.CreateArticle(db)
 	if err != nil {
-		response := JSONResp{Status: "fail", ErrMessage: err.Error()}
+
+		Err := StatusError{Err: err, Code: http.StatusBadRequest,
+			Message: "bad request"}
+		// Test for HttpStatus in loggingMiddleware
+		//log the error(StatusMessage)
+
+		response := JSONResp{Status: "fail", ErrMessage: Err.Message}
 		js, _ := json.Marshal(response)
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusNotFound)
+		//w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(Err.Code)
 		w.Write(js)
 	} else {
 		response := JSONResp{Status: "success", Payload: &article}
@@ -42,7 +48,7 @@ func CreateArticle(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 			panic(err)
 		}
 
-		w.Header().Set("Content-Type", "application/json")
+		//w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusCreated)
 
 		w.Write(js)
@@ -62,10 +68,15 @@ func RetrieveArticle(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	err = article.RetrieveArticle(db)
 
 	if err != nil {
-		response := JSONResp{Status: "fail", ErrMessage: err.Error()}
+		Err := StatusError{Err: err, Code: http.StatusNotFound,
+			Message: "resource not found"}
+		// Test for HttpStatus in loggingMiddleware
+		//log the error(StatusMessage)
+
+		response := JSONResp{Status: "fail", ErrMessage: Err.Message}
 		js, _ := json.Marshal(response)
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusNotFound)
+		//w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(Err.Code)
 		w.Write(js)
 	} else {
 		response := JSONResp{Status: "success", Payload: &article}
@@ -74,7 +85,7 @@ func RetrieveArticle(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 			panic(err)
 		}
 
-		w.Header().Set("Content-Type", "application/json")
+		//w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		w.Write(js)
 
@@ -98,7 +109,7 @@ func RetrieveArticles(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	if err != nil {
 		response := JSONResp{Status: "fail", ErrMessage: err.Error()}
 		js, _ := json.Marshal(response)
-		w.Header().Set("Content-Type", "application/json")
+		//w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusNotFound)
 		w.Write(js)
 	} else {
@@ -109,7 +120,7 @@ func RetrieveArticles(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 			panic(err)
 		}
 
-		w.Header().Set("Content-Type", "application/json")
+		//w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		w.Write(js)
 	}
