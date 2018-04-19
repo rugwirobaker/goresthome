@@ -6,6 +6,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/mediocregopher/radix.v2/pool"
+
 	"github.com/codegangsta/negroni"
 	// Database driver
 	_ "github.com/lib/pq"
@@ -18,6 +20,7 @@ import (
 type App struct {
 	Router mux.Router
 	DB     *sql.DB
+	Store  *pool.Pool
 }
 
 //Initialize ...
@@ -31,8 +34,11 @@ func (a *App) Initialize() {
 func (a *App) Run(addr string) {
 	fmt.Println("*** Starting the web server...")
 
-	n := negroni.New()
-	n.Use(negroni.HandlerFunc(handlers.LoggingHandler))
+	n := negroni.New(
+		negroni.NewRecovery(),
+		negroni.HandlerFunc(handlers.LoggingHandler),
+	)
+	//n.Use(negroni.HandlerFunc(handlers.LoggingHandler))
 	n.UseHandler(&a.Router)
 	//log.Fatal(http.ListenAndServe(addr, &a.Router))
 	n.Run(addr)
@@ -107,5 +113,4 @@ func (a *App) initDb(host, username, password, dbname string, port int) {
 	}
 }
 
-//handlers
-//TODO: find a way to move handlers to their own package
+func (a *App) initStore(host, port string) {}
