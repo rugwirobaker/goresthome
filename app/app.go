@@ -89,6 +89,33 @@ func (a *App) initRoutes() {
 		handlers.RetrieveArticles(w, r, a.DB)
 	}).Methods("GET")
 
+	///////////////////////////////////////////////////////////////////////////////
+	//userHandlers
+
+	//Handlers new user registration
+	a.Router.HandleFunc("/users/register", func(w http.ResponseWriter,
+		r *http.Request) {
+		handlers.RegisterUser(w, r, a.DB)
+	}).Methods("POST")
+
+	//Handlers user login
+	a.Router.HandleFunc("/users/login", func(w http.ResponseWriter,
+		r *http.Request) {
+		handlers.LoginUser(w, r, a.DB)
+	}).Methods("GET")
+
+	//Handlers user delete
+	a.Router.HandleFunc("/users/delete", func(w http.ResponseWriter,
+		r *http.Request) {
+		handlers.RegisterUser(w, r, a.DB)
+	}).Methods("DELETE")
+
+	//Handlers user list i.e returns user collection
+	a.Router.HandleFunc("/users/", func(w http.ResponseWriter,
+		r *http.Request) {
+		handlers.RetrieveUsers(w, r, a.DB)
+	}).Methods("GET")
+
 }
 
 //Initialize database connection

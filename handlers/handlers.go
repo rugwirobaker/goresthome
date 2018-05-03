@@ -107,3 +107,24 @@ func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 func respondWithError(w http.ResponseWriter, code int, msg string) {
 	respondWithJSON(w, code, map[string]string{"error": msg})
 }
+
+//RegisterUser endpoint creates a new user account
+//The required user data is defined in models/User
+func RegisterUser(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+	respondWithError(w, http.StatusInternalServerError, "Not implemented")
+}
+
+//LoginUser endpoint requires a email and password for login
+func LoginUser(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+	respondWithError(w, http.StatusInternalServerError, "Not implemented")
+}
+
+//DeleteUser deletes a user with a given email and requires authentication
+func DeleteUser(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+	respondWithError(w, http.StatusInternalServerError, "Not implemented")
+}
+
+//RetrieveUsers retrievies a list of users
+func RetrieveUsers(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+	respondWithError(w, http.StatusInternalServerError, "Not implemented")
+}
