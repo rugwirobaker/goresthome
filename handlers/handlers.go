@@ -12,12 +12,12 @@ import (
 )
 
 //JSONResp is the response structure
-type JSONResp struct {
-	Status     string                 `json:"status"`
-	Payload    *models.Article        `json:"payload,omitempty"`
-	Results    *models.ArticleResults `json:"results,omitempty"`
-	ErrMessage string                 `json:"error,omitempty"`
-}
+//type JSONResp struct {
+//	Status     string                 `json:"status"`
+//	Payload    *models.Article        `json:"payload,omitempty"`
+//	Results    *models.ArticleResults `json:"results,omitempty"`
+//	ErrMessage string                 `json:"error,omitempty"`
+//}
 
 //CreateArticle ...
 func CreateArticle(w http.ResponseWriter, r *http.Request, db *sql.DB) {
@@ -25,34 +25,15 @@ func CreateArticle(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	var article models.Article
 	err := json.NewDecoder(r.Body).Decode(&article)
 	if err != nil {
-		panic(err)
+		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
 	}
 
 	err = article.CreateArticle(db)
 	if err != nil {
-
-		Err := StatusError{Err: err, Code: http.StatusBadRequest,
-			Message: "bad request"}
-		// Test for HttpStatus in loggingMiddleware
-		//log the error(StatusMessage)
-
-		response := JSONResp{Status: "fail", ErrMessage: Err.Message}
-		js, _ := json.Marshal(response)
-		//w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(Err.Code)
-		w.Write(js)
-	} else {
-		response := JSONResp{Status: "success", Payload: &article}
-		js, err := json.Marshal(response)
-		if err != nil {
-			panic(err)
-		}
-
-		//w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusCreated)
-
-		w.Write(js)
+		respondWithError(w, http.StatusInternalServerError, err.Error())
 	}
+
+	respondWithJSON(w, http.StatusCreated, article)
 }
 
 //RetrieveArticle ...
@@ -68,29 +49,10 @@ func RetrieveArticle(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	err = article.RetrieveArticle(db)
 
 	if err != nil {
-		Err := StatusError{Err: err, Code: http.StatusNotFound,
-			Message: "resource not found"}
-		// Test for HttpStatus in loggingMiddleware
-		//log the error(StatusMessage)
-
-		response := JSONResp{Status: "fail", ErrMessage: Err.Message}
-		js, _ := json.Marshal(response)
-		//w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(Err.Code)
-		w.Write(js)
-	} else {
-		response := JSONResp{Status: "success", Payload: &article}
-		js, err := json.Marshal(response)
-		if err != nil {
-			panic(err)
-		}
-
-		//w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		w.Write(js)
-
+		respondWithError(w, http.StatusBadRequest, "Invalid object ID")
 	}
 
+	respondWithJSON(w, http.StatusOK, article)
 }
 
 //RetrieveArticles ...
@@ -107,23 +69,10 @@ func RetrieveArticles(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	var articles models.ArticleResults
 	err := articles.ListArticles(db)
 	if err != nil {
-		response := JSONResp{Status: "fail", ErrMessage: err.Error()}
-		js, _ := json.Marshal(response)
-		//w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusNotFound)
-		w.Write(js)
-	} else {
-
-		response := JSONResp{Status: "success", Results: &articles}
-		js, err := json.Marshal(response)
-		if err != nil {
-			panic(err)
-		}
-
-		//w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		w.Write(js)
+		respondWithError(w, http.StatusInternalServerError, err.Error())
 	}
+
+	respondWithJSON(w, http.StatusOK, articles)
 }
 
 //DeleteArticle ...
@@ -132,27 +81,29 @@ func DeleteArticle(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	id, err := strconv.Atoi(urlParams["id"])
 
 	if err != nil {
-		log.Fatal(err)
+		respondWithError(w, http.StatusBadRequest, "Invalid object ID")
 	}
 	article := models.Article{ID: id}
 	err = article.DeleteArticle(db)
 
 	if err != nil {
-		response := JSONResp{Status: "fail", ErrMessage: err.Error()}
-		js, _ := json.Marshal(response)
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusNotFound)
-		w.Write(js)
-	} else {
-		response := JSONResp{Status: "success"}
-		js, err := json.Marshal(response)
-		if err != nil {
-			panic(err)
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusAccepted)
-		w.Write(js)
-
+		respondWithError(w, http.StatusInternalServerError, err.Error())
 	}
+
+	respondWithJSON(w, http.StatusOK, map[string]string{"result": "success"})
+}
+
+//helper functions
+
+//respondWithJSON responds with json encoded data
+func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
+	resp, _ := json.Marshal(payload)
+	w.Header().Set("Content-type", "application/json")
+	w.WriteHeader(code)
+	w.Write(resp)
+}
+
+//respondWithError respond with an error message
+func respondWithError(w http.ResponseWriter, code int, msg string) {
+	respondWithJSON(w, code, map[string]string{"error": msg})
 }
