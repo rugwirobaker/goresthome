@@ -72,8 +72,7 @@ func (c *Article) CreateArticle(db *sql.DB) error {
 
 //DeleteArticle query
 func (c *Article) DeleteArticle(db *sql.DB) error {
-	err := db.QueryRow("DELETE FROM articles WHERE id=$1 "+
-		"RETURNING id", c.ID).Scan(&c.ID)
+	_, err := db.Exec("DELETE FROM articles WHERE id=$1", c.ID)
 
 	if err != nil {
 		return err
