@@ -19,6 +19,20 @@ import (
 //	ErrMessage string                 `json:"error,omitempty"`
 //}
 
+type (
+	loginData struct {
+		Email  string `json:"email"`
+		Passwd string `json:"passwd"`
+	}
+
+	registrationData struct {
+		Fname  string `json:"first_name"`
+		Lname  string `json:"last_name"`
+		Email  string `json:"email"`
+		Passwd string `json:"passwd"`
+	}
+)
+
 //CreateArticle ...
 func CreateArticle(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 
@@ -111,12 +125,39 @@ func respondWithError(w http.ResponseWriter, code int, msg string) {
 //RegisterUser endpoint creates a new user account
 //The required user data is defined in models/User
 func RegisterUser(w http.ResponseWriter, r *http.Request, db *sql.DB) {
-	respondWithError(w, http.StatusInternalServerError, "Not implemented")
+	//respondWithError(w, http.StatusInternalServerError, "Not implemented")
+	var user registrationData
+
+	err := json.NewDecoder(r.Body).Decode(&user)
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
+	}
+
+	//err = article.CreateArticle(db)
+	//if err != nil {
+	//	respondWithError(w, http.StatusInternalServerError, err.Error())
+	//}
+
+	respondWithJSON(w, http.StatusCreated, user)
+
 }
 
 //LoginUser endpoint requires a email and password for login
 func LoginUser(w http.ResponseWriter, r *http.Request, db *sql.DB) {
-	respondWithError(w, http.StatusInternalServerError, "Not implemented")
+	//respondWithError(w, http.StatusInternalServerError, "Not implemented")
+	var user loginData
+
+	err := json.NewDecoder(r.Body).Decode(&user)
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
+	}
+
+	//err = article.CreateArticle(db)
+	//if err != nil {
+	//	respondWithError(w, http.StatusInternalServerError, err.Error())
+	//}
+
+	respondWithJSON(w, http.StatusCreated, user)
 }
 
 //DeleteUser deletes a user with a given email and requires authentication
