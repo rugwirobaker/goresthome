@@ -6,6 +6,9 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"time"
+
+	"github.com/rugwirobaker/structure/security"
 
 	"github.com/gorilla/mux"
 	"github.com/rugwirobaker/structure/models"
@@ -26,10 +29,12 @@ type (
 	}
 
 	registrationData struct {
-		Fname  string `json:"first_name"`
-		Lname  string `json:"last_name"`
-		Email  string `json:"email"`
-		Passwd string `json:"passwd"`
+		ID     int       `json:"id,omitempty"`
+		Fname  string    `json:"first_name"`
+		Lname  string    `json:"last_name"`
+		Email  string    `json:"email"`
+		Passwd string    `json:"passwd"`
+		Joined time.Time `json:"joined"`
 	}
 )
 
@@ -133,15 +138,28 @@ func RegisterUser(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
 	}
 
-	usermodel := models.User{
-		Fname: user.Fname, Lname: user.Lname, Email: user.Email, Pass: user.Passwd,
+	var usermodel models.User
+
+	hash, err := security.HashPassword([]byte(user.Passwd))
+	if err != nil {
+		log.Fatalf(err.Error())
+	}
+
+	usermodel = models.User{
+		Fname:    user.Fname,
+		Lname:    user.Lname,
+		Email:    user.Email,
+		Pass:     user.Passwd,
+		PassHash: hash,
 	}
 
 	err = usermodel.RegisterUser(db)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 	} else {
-		respondWithJSON(w, http.StatusCreated, usermodel)
+		user.ID = usermodel.ID
+		user.Joined = usermodel.DateJoined
+		respondWithJSON(w, http.StatusCreated, user)
 	}
 }
 
