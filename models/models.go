@@ -108,7 +108,7 @@ func (s *ArticleResults) ListArticles(db *sql.DB) error {
 func (u *User) RegisterUser(db *sql.DB) error {
 	u.DateJoined = time.Now()
 	err := db.QueryRow("INSERT INTO users(fname, lname, email,"+
-		"passhash, datejoined) VALUES($1, $2, $3, $4, $5,) RETURNING id",
+		"passhash, datejoined) VALUES($1, $2, $3, $4, $5) RETURNING id",
 		u.Fname, u.Lname, u.Email, u.PassHash, u.DateJoined).Scan(&u.ID)
 	if err != nil {
 		return err
