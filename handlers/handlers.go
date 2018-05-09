@@ -133,13 +133,16 @@ func RegisterUser(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
 	}
 
-	//err = article.CreateArticle(db)
-	//if err != nil {
-	//	respondWithError(w, http.StatusInternalServerError, err.Error())
-	//}
+	usermodel := models.User{
+		Fname: user.Fname, Lname: user.Lname, Email: user.Email, Pass: user.Passwd,
+	}
 
-	respondWithJSON(w, http.StatusCreated, user)
-
+	err = usermodel.RegisterUser(db)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+	} else {
+		respondWithJSON(w, http.StatusCreated, usermodel)
+	}
 }
 
 //LoginUser endpoint requires a email and password for login
@@ -162,6 +165,11 @@ func LoginUser(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 
 //DeleteUser deletes a user with a given email and requires authentication
 func DeleteUser(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+	respondWithError(w, http.StatusInternalServerError, "Not implemented")
+}
+
+//RetrieveUser retrieves a given user profile
+func RetrieveUser(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	respondWithError(w, http.StatusInternalServerError, "Not implemented")
 }
 
