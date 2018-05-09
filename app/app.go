@@ -102,7 +102,7 @@ func (a *App) initRoutes() {
 	a.Router.HandleFunc("/users/login", func(w http.ResponseWriter,
 		r *http.Request) {
 		handlers.LoginUser(w, r, a.DB)
-	}).Methods("GET")
+	}).Methods("POST")
 
 	//Handlers user delete
 	a.Router.HandleFunc("/users/delete", func(w http.ResponseWriter,
@@ -140,4 +140,5 @@ func (a *App) initDb(host, username, password, dbname string, port int) {
 	}
 }
 
+//initStore initializes the redis database
 func (a *App) initStore(host, port string) {}
