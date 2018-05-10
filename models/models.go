@@ -28,7 +28,7 @@ type User struct {
 	Fname      string    `json:"first_name"`
 	Lname      string    `json:"last_name"`
 	Email      string    `json:"email"`
-	Pass       string    `json:"passwd"`
+	Pass       string    `json:"password"`
 	PassHash   []byte    `json:"passwdhash,omitempty"`
 	DateJoined time.Time `json:"joinedOn"`
 }
@@ -138,6 +138,16 @@ func (u *User) RetrieveUserByEmail(db *sql.DB) error {
 	err := db.QueryRow("SELECT id, email, passhash FROM users WHERE email=$1",
 		u.Email).Scan(&u.ID, &u.Email, &u.PassHash)
 
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+//RetrieveUserWithEmailAndPass retrieves a user given their email and password
+func (u *User) RetrieveUserWithEmailAndPass(db *sql.DB) error {
+	err := db.QueryRow("SELECT id. email, passhash FROM users WHERE email=$1"+
+		"AND passhash=$2", u.Email, u.PassHash).Scan(&u.ID, &u.Email, &u.PassHash)
 	if err != nil {
 		return err
 	}
