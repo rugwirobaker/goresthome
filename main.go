@@ -1,3 +1,4 @@
+//Package structure is a a map for web application structure
 package main
 
 import "github.com/rugwirobaker/structure/app"

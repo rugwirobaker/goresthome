@@ -1,3 +1,4 @@
+//Package handlers defines route handlers.
 package handlers
 
 import (

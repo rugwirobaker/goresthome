@@ -1,4 +1,4 @@
-//Package models Define interface for storage of different application components
+//Package models Define interface for storage of different application components.
 package models
 
 import (

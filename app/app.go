@@ -1,3 +1,4 @@
+//Package app defines web application-wide initial configuration.
 package app
 
 import (

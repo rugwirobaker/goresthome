@@ -6,7 +6,7 @@ import (
 	jwt "github.com/dgrijalva/jwt-go"
 )
 
-//GenerateJWT generates a rsa 256 signed JWT token
+//GenerateJWT generates a rsa 256 signed JWT token.
 func GenerateJWT(name, role string, signKey interface{}) (string, error) {
 	// create a signer for rsa 256
 	t := jwt.New(jwt.GetSigningMethod("RS256"))
