@@ -9,7 +9,6 @@ import (
 	"net/http"
 
 	jwt "github.com/dgrijalva/jwt-go"
-	"github.com/mediocregopher/radix.v2/pool"
 
 	"github.com/codegangsta/negroni"
 	// Database driver
@@ -37,7 +36,6 @@ var (
 type App struct {
 	Router    mux.Router
 	DB        *sql.DB
-	Store     *pool.Pool
 	verifyKey *rsa.PublicKey
 	signKey   *rsa.PrivateKey
 }
