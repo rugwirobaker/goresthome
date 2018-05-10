@@ -24,8 +24,10 @@ import (
 
 type (
 	loginData struct {
+		ID     int    `json:"id,omitempty"`
 		Email  string `json:"email"`
-		Passwd string `json:"passwd"`
+		Passwd string `json:"password"`
+		Token  string `json:"token"`
 	}
 
 	registrationData struct {
@@ -164,7 +166,7 @@ func RegisterUser(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 }
 
 //LoginUser endpoint requires a email and password for login
-func LoginUser(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+func LoginUser(w http.ResponseWriter, r *http.Request, db *sql.DB, signKey interface{}) {
 	//respondWithError(w, http.StatusInternalServerError, "Not implemented")
 	var user loginData
 
@@ -173,12 +175,27 @@ func LoginUser(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
 	}
 
-	//err = article.CreateArticle(db)
-	//if err != nil {
-	//	respondWithError(w, http.StatusInternalServerError, err.Error())
-	//}
+	usermodel := models.User{Email: user.Email}
 
-	respondWithJSON(w, http.StatusCreated, user)
+	err = usermodel.RetrieveUserByEmail(db)
+
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+	} else {
+		if security.CheckPasswordHash(usermodel.PassHash, user.Passwd) {
+			var token string
+			token, err = security.GenerateJWT(usermodel.Email, "admin", signKey)
+			if err != nil {
+				respondWithError(w, http.StatusInternalServerError, err.Error())
+			} else {
+				user.Token = token
+				user.ID = usermodel.ID
+				respondWithJSON(w, http.StatusOK, user)
+			}
+		} else {
+			respondWithError(w, http.StatusNotFound, "invalid credentials")
+		}
+	}
 }
 
 //DeleteUser deletes a user with a given email and requires authentication

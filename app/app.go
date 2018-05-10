@@ -1,11 +1,14 @@
 package app
 
 import (
+	"crypto/rsa"
 	"database/sql"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 
+	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/mediocregopher/radix.v2/pool"
 
 	"github.com/codegangsta/negroni"
@@ -16,16 +19,33 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// using asymmetric crypto/RSA keys
+// location of private/public key files
+const (
+	// openssl genrsa -out app.rsa 1024
+	privKeyPath = "./keys/app.rsa"
+	// openssl rsa -in app.rsa -pubout > app.rsa.pub
+	pubKeyPath = "./keys/app.rsa.pub"
+)
+
+//Private key for signing and public key for verification
+var (
+	verifyKey, signKey []byte
+)
+
 //App defines application wide configutration.s
 type App struct {
-	Router mux.Router
-	DB     *sql.DB
-	Store  *pool.Pool
+	Router    mux.Router
+	DB        *sql.DB
+	Store     *pool.Pool
+	verifyKey *rsa.PublicKey
+	signKey   *rsa.PrivateKey
 }
 
 //Initialize ...
 func (a *App) Initialize() {
 	fmt.Println("*** Initializing application...")
+	a.initKeys()
 	a.initDb(Host, User, Password, Dbname, Port)
 	a.initRoutes()
 }
@@ -101,7 +121,7 @@ func (a *App) initRoutes() {
 	//Handlers user login
 	a.Router.HandleFunc("/users/login", func(w http.ResponseWriter,
 		r *http.Request) {
-		handlers.LoginUser(w, r, a.DB)
+		handlers.LoginUser(w, r, a.DB, a.signKey)
 	}).Methods("POST")
 
 	//Handlers user delete
@@ -142,3 +162,26 @@ func (a *App) initDb(host, username, password, dbname string, port int) {
 
 //initStore initializes the redis database
 func (a *App) initStore(host, port string) {}
+
+//initKeys loads the application rsa keys
+func (a *App) initKeys() {
+	var err error
+
+	signBytes, err := ioutil.ReadFile(privKeyPath)
+	fatal(err)
+
+	a.signKey, err = jwt.ParseRSAPrivateKeyFromPEM(signBytes)
+	fatal(err)
+
+	verifyBytes, err := ioutil.ReadFile(pubKeyPath)
+	fatal(err)
+
+	a.verifyKey, err = jwt.ParseRSAPublicKeyFromPEM(verifyBytes)
+	fatal(err)
+}
+
+func fatal(err error) {
+	if err != nil {
+		log.Fatalf("[initKeys]: %s\n", err)
+	}
+}
