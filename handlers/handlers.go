@@ -116,14 +116,14 @@ func DeleteArticle(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 //RegisterUser endpoint creates a new user account
 //The required user data is defined in models/User
 func RegisterUser(w http.ResponseWriter, r *http.Request, db *sql.DB) {
-	//respondWithError(w, http.StatusInternalServerError, "Not implemented")
+	defer r.Body.Close()
+	//read request
 	var user registrationData
-
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest, fail, "Invalid request payload")
 	}
-
+	// map request to a model
 	var usermodel models.User
 
 	hash, err := security.HashPassword([]byte(user.Passwd))
@@ -151,14 +151,16 @@ func RegisterUser(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 
 //LoginUser endpoint requires a email and password for login
 func LoginUser(w http.ResponseWriter, r *http.Request, db *sql.DB, signKey interface{}) {
-	//respondWithError(w, http.StatusInternalServerError, "Not implemented")
-	var user loginData
+	defer r.Body.Close()
 
+	//read request
+	var user loginData
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest, fail, "Invalid request payload")
 	}
 
+	//map the data to a model
 	usermodel := models.User{Email: user.Email}
 
 	err = usermodel.RetrieveUserByEmail(db)
