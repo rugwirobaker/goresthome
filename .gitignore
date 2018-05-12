@@ -2,4 +2,4 @@
 .vscode/.
 tmp/
 keys/
-app/config.js
+app/config.json
