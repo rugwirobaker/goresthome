@@ -43,7 +43,7 @@ type (
 
 //CreateArticle ...
 func CreateArticle(w http.ResponseWriter, r *http.Request, db *sql.DB) {
-
+	defer r.Body.Close()
 	var article models.Article
 	err := json.NewDecoder(r.Body).Decode(&article)
 	if err != nil {
