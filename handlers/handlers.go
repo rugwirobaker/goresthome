@@ -15,13 +15,11 @@ import (
 	"github.com/rugwirobaker/structure/models"
 )
 
-//JSONResp is the response structure
-//type JSONResp struct {
-//	Status     string                 `json:"status"`
-//	Payload    *models.Article        `json:"payload,omitempty"`
-//	Results    *models.ArticleResults `json:"results,omitempty"`
-//	ErrMessage string                 `json:"error,omitempty"`
-//}
+//messages
+var (
+	fail    = "failure"
+	success = "success"
+)
 
 type (
 	loginData struct {
@@ -47,15 +45,15 @@ func CreateArticle(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	var article models.Article
 	err := json.NewDecoder(r.Body).Decode(&article)
 	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
+		respondWithError(w, http.StatusBadRequest, fail, "Invalid request payload")
 	}
 
 	err = article.CreateArticle(db)
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, err.Error())
+		respondWithError(w, http.StatusInternalServerError, fail, err.Error())
 	}
 
-	respondWithJSON(w, http.StatusCreated, article)
+	respondWithJSON(w, http.StatusCreated, success, article)
 }
 
 //RetrieveArticle ...
@@ -71,10 +69,10 @@ func RetrieveArticle(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	err = article.RetrieveArticle(db)
 
 	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "Invalid object ID")
+		respondWithError(w, http.StatusBadRequest, fail, "Invalid object ID")
 	}
 
-	respondWithJSON(w, http.StatusOK, article)
+	respondWithJSON(w, http.StatusOK, success, article)
 }
 
 //RetrieveArticles ...
@@ -91,10 +89,10 @@ func RetrieveArticles(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	var articles models.ArticleResults
 	err := articles.ListArticles(db)
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, err.Error())
+		respondWithError(w, http.StatusInternalServerError, fail, err.Error())
 	}
 
-	respondWithJSON(w, http.StatusOK, articles)
+	respondWithJSON(w, http.StatusOK, success, articles)
 }
 
 //DeleteArticle ...
@@ -103,31 +101,16 @@ func DeleteArticle(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	id, err := strconv.Atoi(urlParams["id"])
 
 	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "Invalid object ID")
+		respondWithError(w, http.StatusBadRequest, fail, "Invalid object ID")
 	}
 	article := models.Article{ID: id}
 	err = article.DeleteArticle(db)
 
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, err.Error())
+		respondWithError(w, http.StatusInternalServerError, fail, err.Error())
 	}
 
-	respondWithJSON(w, http.StatusOK, map[string]string{"result": "success"})
-}
-
-//helper functions
-
-//respondWithJSON responds with json encoded data
-func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
-	resp, _ := json.Marshal(payload)
-	w.Header().Set("Content-type", "application/json")
-	w.WriteHeader(code)
-	w.Write(resp)
-}
-
-//respondWithError respond with an error message
-func respondWithError(w http.ResponseWriter, code int, msg string) {
-	respondWithJSON(w, code, map[string]string{"error": msg})
+	respondWithJSON(w, http.StatusOK, success, map[string]string{"result": success})
 }
 
 //RegisterUser endpoint creates a new user account
@@ -138,7 +121,7 @@ func RegisterUser(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
+		respondWithError(w, http.StatusBadRequest, fail, "Invalid request payload")
 	}
 
 	var usermodel models.User
@@ -158,11 +141,11 @@ func RegisterUser(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 
 	err = usermodel.RegisterUser(db)
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, err.Error())
+		respondWithError(w, http.StatusInternalServerError, fail, err.Error())
 	} else {
 		user.ID = usermodel.ID
 		user.Joined = usermodel.DateJoined
-		respondWithJSON(w, http.StatusCreated, user)
+		respondWithJSON(w, http.StatusCreated, success, user)
 	}
 }
 
@@ -173,7 +156,7 @@ func LoginUser(w http.ResponseWriter, r *http.Request, db *sql.DB, signKey inter
 
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
+		respondWithError(w, http.StatusBadRequest, fail, "Invalid request payload")
 	}
 
 	usermodel := models.User{Email: user.Email}
@@ -181,35 +164,35 @@ func LoginUser(w http.ResponseWriter, r *http.Request, db *sql.DB, signKey inter
 	err = usermodel.RetrieveUserByEmail(db)
 
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, err.Error())
+		respondWithError(w, http.StatusInternalServerError, fail, err.Error())
 	} else {
 		if security.CheckPasswordHash(usermodel.PassHash, user.Passwd) {
 			var token string
 			token, err = security.GenerateJWT(usermodel.Email, "admin", signKey)
 			if err != nil {
-				respondWithError(w, http.StatusInternalServerError, err.Error())
+				respondWithError(w, http.StatusInternalServerError, fail, err.Error())
 			} else {
 				user.Token = token
 				user.ID = usermodel.ID
-				respondWithJSON(w, http.StatusOK, user)
+				respondWithJSON(w, http.StatusOK, success, user)
 			}
 		} else {
-			respondWithError(w, http.StatusNotFound, "invalid credentials")
+			respondWithError(w, http.StatusNotFound, fail, "invalid credentials")
 		}
 	}
 }
 
 //DeleteUser deletes a user with a given email and requires authentication
 func DeleteUser(w http.ResponseWriter, r *http.Request, db *sql.DB) {
-	respondWithError(w, http.StatusInternalServerError, "Not implemented")
+	respondWithError(w, http.StatusInternalServerError, fail, "Not implemented")
 }
 
 //RetrieveUser retrieves a given user profile
 func RetrieveUser(w http.ResponseWriter, r *http.Request, db *sql.DB) {
-	respondWithError(w, http.StatusInternalServerError, "Not implemented")
+	respondWithError(w, http.StatusInternalServerError, fail, "Not implemented")
 }
 
 //RetrieveUsers retrievies a list of users
 func RetrieveUsers(w http.ResponseWriter, r *http.Request, db *sql.DB) {
-	respondWithError(w, http.StatusInternalServerError, "Not implemented")
+	respondWithError(w, http.StatusInternalServerError, fail, "Not implemented")
 }

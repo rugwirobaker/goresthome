@@ -64,10 +64,10 @@ func AuthHandler(w http.ResponseWriter, r *http.Request,
 		if token.Valid {
 			next(w, r)
 		} else {
-			respondWithError(w, http.StatusUnauthorized, "Token is not valid")
+			respondWithError(w, http.StatusUnauthorized, "fail", "Token is not valid")
 		}
 	} else {
-		respondWithError(w, http.StatusUnauthorized, "Unauthorized access to this resource")
+		respondWithError(w, http.StatusUnauthorized, "fail", "Unauthorized access to this resource")
 	}
 }
 
