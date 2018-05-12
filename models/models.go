@@ -57,12 +57,11 @@ func (c *Article) RetrieveArticle(db *sql.DB) error {
 
 //CreateArticle ...
 func (c *Article) CreateArticle(db *sql.DB) error {
-	//var article = Article{}
 	c.CreatedOn = time.Now()
+
 	err := db.QueryRow("INSERT INTO articles(title, body, author,createdon)"+
 		"VALUES($1, $2, $3, $4)"+
 		"RETURNING id", c.Title, c.Body, c.Author, c.CreatedOn).Scan(&c.ID)
-
 	if err != nil {
 		return err
 	}
@@ -73,7 +72,6 @@ func (c *Article) CreateArticle(db *sql.DB) error {
 //DeleteArticle query
 func (c *Article) DeleteArticle(db *sql.DB) error {
 	_, err := db.Exec("DELETE FROM articles WHERE id=$1", c.ID)
-
 	if err != nil {
 		return err
 	}
@@ -87,12 +85,11 @@ func (s *ArticleResults) getCount() {
 //ListArticles ...
 func (s *ArticleResults) ListArticles(db *sql.DB) error {
 	rows, err := db.Query("SELECT id, title, author FROM articles")
-
 	if err != nil {
 		return err
 	}
-	defer rows.Close()
 
+	defer rows.Close()
 	for rows.Next() {
 		var c Article
 		if err := rows.Scan(&c.ID, &c.Title, &c.Author); err != nil {
@@ -118,13 +115,10 @@ func (u *User) RegisterUser(db *sql.DB) error {
 
 //DeleteUser deletes user with dd:ID
 func (u *User) DeleteUser(db *sql.DB) error {
-	err := db.QueryRow("DELETE FROM users WHERE id=$1 "+
-		"RETURNING id", u.ID).Scan(&u.ID)
-
+	_, err := db.Exec("DELETE FROM users WHERE id=$1", u.ID)
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 
@@ -137,7 +131,6 @@ func (u *User) UpdateUser(db *sql.DB) error {
 func (u *User) RetrieveUserByEmail(db *sql.DB) error {
 	err := db.QueryRow("SELECT id, email, passhash FROM users WHERE email=$1",
 		u.Email).Scan(&u.ID, &u.Email, &u.PassHash)
-
 	if err != nil {
 		return err
 	}
@@ -157,12 +150,11 @@ func (u *User) RetrieveUserWithEmailAndPass(db *sql.DB) error {
 //ListUsers queries a list of user entities
 func (us *Users) ListUsers(db *sql.DB) error {
 	rows, err := db.Query("SELECT id, title, author FROM users")
-
 	if err != nil {
 		return err
 	}
-	defer rows.Close()
 
+	defer rows.Close()
 	for rows.Next() {
 		var u User
 		if err := rows.Scan(&u.ID, &u.Email, &u.DateJoined); err != nil {
@@ -171,7 +163,6 @@ func (us *Users) ListUsers(db *sql.DB) error {
 		us.Users = append(us.Users, u)
 		us.getCount()
 	}
-
 	return nil
 }
 
