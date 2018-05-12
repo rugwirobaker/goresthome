@@ -19,15 +19,6 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// using asymmetric crypto/RSA keys
-// location of private/public key files
-const (
-	// openssl genrsa -out app.rsa 1024
-	privKeyPath = "./keys/app.rsa"
-	// openssl rsa -in app.rsa -pubout > app.rsa.pub
-	pubKeyPath = "./keys/app.rsa.pub"
-)
-
 //Private key for signing and public key for verification
 var (
 	verifyKey, signKey []byte
@@ -35,6 +26,7 @@ var (
 
 //App defines application wide configutration.s
 type App struct {
+	Conf      *Config
 	Router    *mux.Router
 	DB        *sql.DB
 	verifyKey *rsa.PublicKey
@@ -45,7 +37,11 @@ type App struct {
 func (a *App) Initialize() {
 	fmt.Println("*** Initializing application...")
 	a.initKeys()
-	a.initDb(Host, User, Password, Dbname, Port)
+	a.initDb(a.Conf.DB.Host,
+		a.Conf.DB.Username,
+		a.Conf.DB.Password,
+		a.Conf.DB.Dbname,
+		a.Conf.DB.Port)
 	a.initRoutes()
 }
 
@@ -99,13 +95,13 @@ func (a *App) initStore(host, port string) {}
 func (a *App) initKeys() {
 	var err error
 
-	signBytes, err := ioutil.ReadFile(privKeyPath)
+	signBytes, err := ioutil.ReadFile(a.Conf.Keys.SignKey)
 	fatal(err)
 
 	a.signKey, err = jwt.ParseRSAPrivateKeyFromPEM(signBytes)
 	fatal(err)
 
-	verifyBytes, err := ioutil.ReadFile(pubKeyPath)
+	verifyBytes, err := ioutil.ReadFile(a.Conf.Keys.VerifyKey)
 	fatal(err)
 
 	a.verifyKey, err = jwt.ParseRSAPublicKeyFromPEM(verifyBytes)
