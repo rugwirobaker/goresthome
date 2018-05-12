@@ -3,3 +3,4 @@
 tmp/
 keys/
 app/config.json
+vendor/
