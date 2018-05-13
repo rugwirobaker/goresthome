@@ -123,7 +123,9 @@ func fatal(err error) {
 
 func resAccessControl() *cors.Cors {
 	c := cors.New(cors.Options{
-		AllowedOrigins: []string{"http:localhost:8080", "localhost:4000"},
+		AllowedOrigins:   []string{"http//:localhost:8080", "http//:localhost:4000"},
+		AllowCredentials: true,
+		//Debug: true,
 	})
 	return c
 }

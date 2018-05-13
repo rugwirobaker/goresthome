@@ -68,7 +68,7 @@ func InitUserRoutes(router *mux.Router, db *sql.DB, sKey *rsa.PrivateKey) *mux.R
 	}).Methods("DELETE")
 
 	//Handlers user list i.e returns user collection
-	userRoutes.HandleFunc("/users/", func(w http.ResponseWriter,
+	userRoutes.HandleFunc("/users", func(w http.ResponseWriter,
 		r *http.Request) {
 		handlers.RetrieveUsers(w, r, db)
 	}).Methods("GET")
