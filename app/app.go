@@ -9,6 +9,7 @@ import (
 	"log"
 
 	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/rs/cors"
 
 	"github.com/codegangsta/negroni"
 	// Database driver
@@ -52,7 +53,13 @@ func (a *App) Run(addr string) {
 	n := negroni.New(
 		negroni.NewRecovery(),
 		negroni.HandlerFunc(handlers.LoggingHandler),
+		//negroni.HandlerFunc(c),
 	)
+
+	//cross origin resource control
+	c := resAccessControl()
+	n.Use(c)
+
 	//n.Use(negroni.HandlerFunc(handlers.LoggingHandler))
 	n.UseHandler(a.Router)
 	//log.Fatal(http.ListenAndServe(addr, &a.Router))
@@ -112,4 +119,11 @@ func fatal(err error) {
 	if err != nil {
 		log.Fatalf("[initKeys]: %s\n", err)
 	}
+}
+
+func resAccessControl() *cors.Cors {
+	c := cors.New(cors.Options{
+		AllowedOrigins: []string{"http:localhost:8080", "localhost:4000"},
+	})
+	return c
 }
